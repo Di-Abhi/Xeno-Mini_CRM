@@ -30,13 +30,15 @@ const app = express();
 
 // 🛡️ Security & CORS Configuration
 const allowedOrigins = process.env.NODE_ENV === 'production'
-    ? [process.env.FRONTEND_URL]
+    ? [process.env.FRONTEND_URL, 'https://xeno-mini-crm-five.vercel.app']
     : ['http://localhost:5173', 'http://localhost:3000'];
+
+console.log('🔧 CORS allowed origins:', allowedOrigins);
 
 app.use(cors({
     origin: allowedOrigins,
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
@@ -130,126 +132,7 @@ app.get('/health', (req, res) => {
     });
 });
 
-// Working auth login endpoint
-app.post('/api/auth/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-
-        if (!email || !password) {
-            return res.status(400).json({
-                success: false,
-                message: 'Email and password are required'
-            });
-        }
-
-        // Import User model
-        const User = require('./models/User');
-        const jwt = require('jsonwebtoken');
-
-        // Find user
-        const user = await User.findOne({ email }).select('+password');
-
-        if (!user) {
-            return res.status(401).json({
-                success: false,
-                message: 'Invalid email or password'
-            });
-        }
-
-
-
-        // Check password
-        const isPasswordValid = await user.comparePassword(password);
-        if (!isPasswordValid) {
-            return res.status(401).json({
-                success: false,
-                message: 'Invalid email or password'
-            });
-        }
-
-        // Generate token
-        const token = jwt.sign(
-            { userId: user._id },
-            process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRE || '7d' }
-        );
-
-        // Update login info
-        await user.updateLoginInfo();
-
-        res.status(200).json({
-            success: true,
-            message: 'Login successful',
-            data: {
-                user: {
-                    id: user._id,
-                    name: user.name,
-                    email: user.email,
-                    role: user.role,
-                    isEmailVerified: user.isEmailVerified,
-                    lastLogin: user.lastLogin
-                },
-                token
-            }
-        });
-    } catch (error) {
-        console.error('Login error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Server error during login'
-        });
-    }
-});
-
-// Auth me endpoint
-app.get('/api/auth/me', async (req, res) => {
-    try {
-        // Get token from header
-        const authHeader = req.header('Authorization');
-
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return res.status(401).json({
-                success: false,
-                message: 'Access denied. No token provided or invalid format.'
-            });
-        }
-
-        const token = authHeader.substring(7);
-        const jwt = require('jsonwebtoken');
-        const User = require('./models/User');
-
-        // Verify token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await User.findById(decoded.userId).select('-password');
-
-        if (!user) {
-            return res.status(401).json({
-                success: false,
-                message: 'Token is valid but user not found.'
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            data: {
-                user: {
-                    id: user._id,
-                    name: user.name,
-                    email: user.email,
-                    role: user.role,
-                    lastLogin: user.lastLogin,
-                    createdAt: user.createdAt
-                }
-            }
-        });
-    } catch (error) {
-        console.error('Auth me error:', error);
-        res.status(401).json({
-            success: false,
-            message: 'Invalid token'
-        });
-    }
-});
+// Remove duplicate routes - using routes from /api/auth instead
 
 // API Routes
 console.log('Loading API routes...');
