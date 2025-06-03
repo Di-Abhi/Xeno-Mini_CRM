@@ -247,9 +247,10 @@ async function launchCampaign(campaign, audience) {
     await campaign.start();
 
     // Create communication logs for each customer
-    const communicationLogs = audience.map(customer => ({
+    const communicationLogs = audience.map((customer, index) => ({
         campaignId: campaign._id,
         customerId: customer._id,
+        messageId: `MSG-${campaign._id}-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 6)}`,
         message: personalizeMessage(campaign.messageTemplate, customer),
         channel: campaign.channel,
         personalizedData: {

@@ -115,7 +115,7 @@ communicationLogSchema.pre('save', function(next) {
 // Static method to get communication statistics for a campaign
 communicationLogSchema.statics.getCampaignStats = async function(campaignId) {
     const stats = await this.aggregate([
-        { $match: { campaignId: mongoose.Types.ObjectId(campaignId) } },
+        { $match: { campaignId: new mongoose.Types.ObjectId(campaignId) } },
         {
             $group: {
                 _id: '$status',
