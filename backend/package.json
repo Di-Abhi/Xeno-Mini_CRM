@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js --ignore node_modules/",
-    "seed": "node seedData.js"
+    "seed": "node seedData.js",
+    "build": "echo 'Backend ready for deployment'"
   },
   "keywords": [
     "crm", "customer-management", "campaigns", "ai-powered",
