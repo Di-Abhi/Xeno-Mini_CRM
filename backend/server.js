@@ -28,30 +28,28 @@ const aiRoutes = require('./routes/ai');
 
 const app = express();
 
-// 🛡️ Security & CORS Configuration
+// 🛡️ Emergency CORS Fix - Allow all origins temporarily
 app.use((req, res, next) => {
-    // Allow requests from Vercel frontend
-    res.header('Access-Control-Allow-Origin', 'https://xeno-mini-crm-five.vercel.app');
+    res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
 
     // Handle preflight requests
     if (req.method === 'OPTIONS') {
+        console.log('🔧 Handling OPTIONS request from:', req.headers.origin);
         return res.status(200).end();
     }
 
+    console.log('🔧 Request from origin:', req.headers.origin);
     next();
 });
 
-// Backup CORS configuration
-const allowedOrigins = ['https://xeno-mini-crm-five.vercel.app', 'http://localhost:5173'];
-
+// Simple CORS - allow all for now
 app.use(cors({
-    origin: allowedOrigins,
-    credentials: true,
+    origin: true,
+    credentials: false,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
 // 📝 Body parsing middleware
