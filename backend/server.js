@@ -29,11 +29,23 @@ const aiRoutes = require('./routes/ai');
 const app = express();
 
 // 🛡️ Security & CORS Configuration
-const allowedOrigins = process.env.NODE_ENV === 'production'
-    ? [process.env.FRONTEND_URL, 'https://xeno-mini-crm-five.vercel.app']
-    : ['http://localhost:5173', 'http://localhost:3000'];
+app.use((req, res, next) => {
+    // Allow requests from Vercel frontend
+    res.header('Access-Control-Allow-Origin', 'https://xeno-mini-crm-five.vercel.app');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.header('Access-Control-Allow-Credentials', 'true');
 
-console.log('🔧 CORS allowed origins:', allowedOrigins);
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
+    next();
+});
+
+// Backup CORS configuration
+const allowedOrigins = ['https://xeno-mini-crm-five.vercel.app', 'http://localhost:5173'];
 
 app.use(cors({
     origin: allowedOrigins,
@@ -129,6 +141,15 @@ app.get('/health', (req, res) => {
             total: `${Math.round(process.memoryUsage().heapTotal / 1024 / 1024)} MB`
         },
         version: '1.0.0'
+    });
+});
+
+// Test CORS endpoint
+app.get('/api/test', (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: 'CORS is working!',
+        origin: req.headers.origin
     });
 });
 
