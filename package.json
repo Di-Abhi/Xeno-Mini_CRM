@@ -4,11 +4,10 @@
   "description": "Mini CRM Platform",
   "scripts": {
     "start": "cd backend && npm start",
-    "install": "cd backend && npm install",
-    "build": "cd backend && npm install"
+    "build": "cd backend && npm install",
+    "install-backend": "cd backend && npm install"
   },
   "engines": {
-    "node": "18.x",
-    "npm": "9.x"
+    "node": "18.x"
   }
 }
